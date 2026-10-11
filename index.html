@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2B55E6">
+<meta name="description" content="Learn Java with short lessons and a quiz game on Easy, Medium, Hard and Extreme.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Java Quest">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root { color-scheme: light; padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+html { -webkit-tap-highlight-color: transparent; }
+</style>
+<title>Java Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: single-column phone app. Home lists the lessons, a lesson page ends in a sticky start bar, the quiz shows one question per screen with feedback docked at the bottom. */
+:root {
+  --bg: #EBEFF8;
+  --surface: #FFFFFF;
+  --ink: #131A35;
+  --muted: #566080;
+  --line: #D3D9EB;
+  --accent: #2B55E6;
+  --on-accent: #FFFFFF;
+  --gold: #E8A200;
+  --star-off: #C9D0E4;
+  --good: #117A4B;
+  --good-bg: #E2F5EB;
+  --bad: #C62F3F;
+  --bad-bg: #FCE7EA;
+  --code-bg: #121A3B;
+  --code-fg: #E4E9FF;
+  --c-kw: #8FB0FF;
+  --c-str: #7FE0B0;
+  --c-num: #FFC46B;
+  --c-com: #8591BD;
+  --easy: #0B7F72;
+  --med: #A65D00;
+  --hard: #C2275A;
+  --xtr: #6A35D8;
+  --on-mode: #FFFFFF;
+  --f-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1126; --surface: #141C3A; --ink: #E7EBFB; --muted: #9BA6CE; --line: #252F5C;
+    --accent: #8AA4FF; --on-accent: #0B1126; --gold: #FFC53D; --star-off: #34406E;
+    --good: #4AD891; --good-bg: #12392B; --bad: #FF7A8A; --bad-bg: #3E1A25;
+    --code-bg: #0A0F22; --easy: #3DD6C2; --med: #FFB04A; --hard: #FF7DA3; --xtr: #B79BFF; --on-mode: #0B1126;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B1126; --surface: #141C3A; --ink: #E7EBFB; --muted: #9BA6CE; --line: #252F5C;
+  --accent: #8AA4FF; --on-accent: #0B1126; --gold: #FFC53D; --star-off: #34406E;
+  --good: #4AD891; --good-bg: #12392B; --bad: #FF7A8A; --bad-bg: #3E1A25;
+  --code-bg: #0A0F22; --easy: #3DD6C2; --med: #FFB04A; --hard: #FF7DA3; --xtr: #B79BFF; --on-mode: #0B1126;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.5 var(--f-body); -webkit-text-size-adjust: 100%; }
+button { font-family: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3, p { margin: 0; }
+
+.wrap { max-width: 560px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 140px; display: grid; gap: 16px; }
+
+/* home */
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.brand { font: 800 clamp(30px, 9vw, 38px)/1 var(--f-display); letter-spacing: -0.02em; }
+.sub { margin-top: 6px; color: var(--muted); font-size: 15px; }
+.lvl { min-width: 150px; display: grid; gap: 5px; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.lvl span { display: flex; justify-content: space-between; gap: 10px; }
+.bar { height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .4s; }
+
+.seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.seg button { min-height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 700 14px var(--f-body); cursor: pointer; padding: 0 2px; }
+.seg .m-easy[aria-pressed="true"] { background: var(--easy); color: var(--on-mode); }
+.seg .m-medium[aria-pressed="true"] { background: var(--med); color: var(--on-mode); }
+.seg .m-hard[aria-pressed="true"] { background: var(--hard); color: var(--on-mode); }
+.seg .m-extreme[aria-pressed="true"] { background: var(--xtr); color: var(--on-mode); }
+.modeNote { color: var(--muted); font-size: 14px; margin-top: -6px; }
+
+.topics { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.card { display: flex; gap: 14px; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; color: inherit; cursor: pointer; font: inherit; }
+.num { flex: none; width: 40px; height: 40px; border-radius: 12px; background: var(--code-bg); color: var(--code-fg); display: grid; place-items: center; font: 700 16px var(--f-mono); }
+.ct { min-width: 0; display: grid; gap: 3px; }
+.ct b { font: 700 18px/1.2 var(--f-display); }
+.ct small { color: var(--muted); font-size: 14px; }
+.rows { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; }
+.mini { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; }
+.mini.m-easy { color: var(--easy); } .mini.m-medium { color: var(--med); } .mini.m-hard { color: var(--hard); } .mini.m-extreme { color: var(--xtr); }
+.stars { display: inline-flex; gap: 1px; }
+.foot { display: flex; justify-content: center; padding-top: 8px; }
+.link { background: none; border: 0; color: var(--muted); font-size: 14px; text-decoration: underline; cursor: pointer; min-height: 44px; padding: 0 12px; }
+
+/* lesson */
+.back { justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px 0 4px; background: none; border: 0; color: var(--muted); font: 600 15px var(--f-body); cursor: pointer; }
+.kicker { font: 700 12px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.title { font: 800 clamp(30px, 8.5vw, 40px)/1.05 var(--f-display); letter-spacing: -0.02em; text-wrap: balance; }
+.lesson { display: grid; gap: 14px; }
+.lesson p { max-width: 65ch; }
+code { font-family: var(--f-mono); font-size: .88em; background: var(--line); padding: 1px 6px; border-radius: 6px; }
+pre.code { margin: 0; background: var(--code-bg); color: var(--code-fg); padding: 14px 16px; border-radius: 14px; overflow-x: auto; font: 500 14px/1.65 var(--f-mono); tab-size: 4; }
+pre.code code { background: none; padding: 0; font: inherit; border-radius: 0; }
+.k { color: var(--c-kw); } .s { color: var(--c-str); } .n { color: var(--c-num); } .c { color: var(--c-com); font-style: italic; }
+.points { display: grid; gap: 10px; padding: 0; margin: 0; list-style: none; }
+.points li { position: relative; padding-left: 20px; }
+.points li::before { content: ""; position: absolute; left: 2px; top: .6em; width: 7px; height: 7px; background: var(--accent); border-radius: 2px; }
+.h3 { font: 700 13px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+.dock { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 5; }
+.dock-in { max-width: 560px; margin: 0 auto; display: grid; gap: 10px; }
+.primary { min-height: 52px; border: 0; border-radius: 14px; background: var(--accent); color: var(--on-accent); font: 700 17px var(--f-body); cursor: pointer; width: 100%; }
+.ghost { min-height: 48px; border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 14px; font: 600 16px var(--f-body); cursor: pointer; width: 100%; }
+
+/* quiz */
+.qtop { position: sticky; top: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 4; padding: 10px 16px 8px; }
+.qtop-in { max-width: 560px; margin: 0 auto; display: grid; gap: 8px; }
+.qrow { display: flex; align-items: center; gap: 12px; }
+.x { flex: none; width: 44px; height: 44px; border-radius: 12px; border: 0; background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer; }
+.qrow .bar { flex: 1; }
+.lives { display: inline-flex; gap: 3px; min-width: 52px; justify-content: flex-end; font: 700 13px var(--f-mono); color: var(--muted); }
+.timer { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.timer i { display: block; height: 100%; width: 100%; background: var(--hard); }
+.tlabel { font: 700 13px var(--f-mono); color: var(--hard); text-align: right; font-variant-numeric: tabular-nums; }
+.qbody { max-width: 560px; margin: 0 auto; padding: 8px 16px 220px; display: grid; gap: 16px; }
+.qlabel { font: 700 12px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; gap: 10px; }
+.q { font: 700 clamp(21px, 6vw, 25px)/1.25 var(--f-display); text-wrap: balance; }
+.opts { display: grid; gap: 10px; }
+.opt { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; min-height: 56px; padding: 12px 14px; background: var(--surface); border: 2px solid var(--line); border-radius: 14px; color: var(--ink); font: 600 16px/1.3 var(--f-body); cursor: pointer; }
+.opt .ltr { flex: none; width: 28px; height: 28px; border-radius: 8px; background: var(--bg); display: grid; place-items: center; font: 700 13px var(--f-mono); color: var(--muted); }
+.opt .t { min-width: 0; overflow-wrap: anywhere; }
+.opt.mono .t { font-family: var(--f-mono); font-size: 15px; font-weight: 700; }
+.opt.good { border-color: var(--good); background: var(--good-bg); }
+.opt.bad { border-color: var(--bad); background: var(--bad-bg); }
+.opt.dim { opacity: .55; }
+.opt.gone { opacity: .25; text-decoration: line-through; }
+.hintbtn { justify-self: start; min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px dashed var(--easy); background: transparent; color: var(--easy); font: 700 15px var(--f-body); cursor: pointer; }
+.fb { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 4px solid var(--line); padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px)); }
+.fb.good { border-top-color: var(--good); } .fb.bad { border-top-color: var(--bad); }
+.fb-in { max-width: 560px; margin: 0 auto; display: grid; gap: 10px; }
+.fb h3 { font: 800 20px var(--f-display); }
+.fb.good h3 { color: var(--good); } .fb.bad h3 { color: var(--bad); }
+.fb p { font-size: 15px; }
+
+.editor { width: 100%; min-height: 180px; resize: vertical; background: var(--code-bg); color: var(--code-fg); border: 2px solid var(--line); border-radius: 14px; padding: 14px 16px; font: 500 15px/1.6 var(--f-mono); tab-size: 4; white-space: pre; overflow: auto; }
+.editor:focus-visible { border-color: var(--xtr); outline: none; }
+.lbl { font: 700 12px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.cmsg { min-height: 1.5em; color: var(--bad); font-size: 14px; font-weight: 600; }
+.crow { display: grid; gap: 10px; }
+
+/* result */
+.res { display: grid; gap: 18px; justify-items: center; text-align: center; padding-top: 12px; }
+.res .stars { gap: 6px; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: grid; gap: 2px; }
+.tile b { font: 800 30px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.tile span { color: var(--muted); font-size: 13px; font-weight: 600; }
+.res .btns { display: grid; gap: 10px; width: 100%; }
+.note { color: var(--muted); max-width: 40ch; }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/*DATA*/
+const Q = (q, c, o, e, m) => ({ q, c, o, e, m: !!m });
+const TOPICS = [
+  {
+    title: `Variables & Types`, blurb: `Boxes that hold values`,
+    text: [
+      `A variable is a named box that stores a value. You choose a type, a name and a value, then end the line with a semicolon.`,
+      `The type decides what the box can hold. Whole numbers go in [[int]], decimals in [[double]], true or false in [[boolean]], one character in [[char]], and text in [[String]].`
+    ],
+    code: `int age = 20;\ndouble price = 19.99;\nboolean isStudent = true;\nchar grade = 'A';\nString name = "Maria";`,
+    points: [`Text uses double quotes. A single char uses single quotes.`, `Use [[final]] for a value that must never change.`, `A variable name cannot start with a number.`],
+    easy: [
+      Q(`Which type stores a whole number like 25?`, null, [`int`, `String`, `boolean`, `char`], `int holds whole numbers. double holds decimals.`, 1),
+      Q(`Which type stores text such as "Hello"?`, null, [`String`, `int`, `double`, `boolean`], `String holds text, written in double quotes.`, 1),
+      Q(`Which line declares a variable correctly?`, null, [`int age = 20;`, `age int = 20;`, `int = age 20;`, `20 = int age;`], `The pattern is the type, then the name, then = and a value.`, 1),
+      Q(`What can a boolean store?`, null, [`Only true or false`, `Any whole number`, `A word`, `A decimal`], `A boolean answers yes or no questions, so it only holds true or false.`)
+    ],
+    medium: [
+      Q(`Which line will not compile?`, null, [`int c = 2.5;`, `int a = 5;`, `double b = 2.5;`, `String d = "hi";`], `2.5 has a decimal part, so it does not fit in an int. Use double for it.`, 1),
+      Q(`Which one is a char value?`, null, [`'A'`, `"A"`, `A`, `"AB"`], `A char uses single quotes. Double quotes make a String.`, 1),
+      Q(`What does this print?`, `String name = "Sam";\nint age = 12;\nSystem.out.println(name + age);`, [`Sam12`, `Sam 12`, `Sam+12`, `It does not compile`], `The + joins text and numbers without adding a space.`, 1),
+      Q(`Which keyword makes a variable that cannot change?`, null, [`final`, `fixed`, `lock`, `static`], `final means the value is set once and never reassigned.`, 1)
+    ],
+    hard: [
+      Q(`What does this print?`, `int x = 5;\nx = x + 2;\nSystem.out.println(x);`, [`7`, `5`, `52`, `It does not compile`], `The right side is worked out first: 5 + 2 is 7. Then 7 is stored back in x.`, 1),
+      Q(`What does this print?`, `System.out.println("5" + 2);`, [`52`, `7`, `5 2`, `It does not compile`], `"5" is text, so + joins the two instead of adding them.`, 1),
+      Q(`What does this print?`, `int a = 10;\ndouble b = a;\nSystem.out.println(b);`, [`10.0`, `10`, `0`, `It does not compile`], `An int fits into a double automatically, and a double prints with a decimal point.`, 1),
+      Q(`What does this print?`, `String s = "Java";\nSystem.out.println(s.length());`, [`4`, `3`, `5`, `Java`], `length() counts the characters: J, a, v, a.`, 1)
+    ]
+  },
+  {
+    title: `Operators & Math`, blurb: `Calculate and compare`,
+    text: [
+      `Math operators are + - * / and %. The % operator gives the remainder after dividing. When you divide two ints, Java drops the decimal part, so 7 / 2 is 3.`,
+      `Comparison operators (== != < > <= >=) give true or false. Combine them with && (and), || (or) and ! (not).`
+    ],
+    code: `int a = 7;\nSystem.out.println(a / 2);      // 3\nSystem.out.println(a % 2);      // 1\nSystem.out.println(a / 2.0);    // 3.5\na++;                            // a is now 8\nSystem.out.println(a > 5 && a < 10); // true`,
+    points: [`[[=]] stores a value. [[==]] compares two values.`, `[[x++]] adds 1. [[x += 3]] adds 3.`, `Multiplication and division run before addition and subtraction.`],
+    easy: [
+      Q(`What is 10 % 3?`, null, [`1`, `3`, `0`, `3.33`], `% gives the remainder. 10 divided by 3 is 3, with 1 left over.`, 1),
+      Q(`Which operator checks if two values are equal?`, null, [`==`, `=`, `!=`, `=>`], `One = stores a value. Two == compare values.`, 1),
+      Q(`What does && mean?`, null, [`AND (both must be true)`, `OR (one must be true)`, `NOT`, `Equals`], `a && b is true only when both a and b are true.`),
+      Q(`What does x++ do?`, null, [`Adds 1 to x`, `Doubles x`, `Subtracts 1 from x`, `Nothing`], `++ increases a number by one.`)
+    ],
+    medium: [
+      Q(`What does this print?`, `System.out.println(7 / 2);`, [`3`, `3.5`, `4`, `3.0`], `Both numbers are ints, so Java drops the decimal part.`, 1),
+      Q(`What does this print?`, `System.out.println(7 / 2.0);`, [`3.5`, `3`, `4`, `It does not compile`], `One side is a double, so the result keeps its decimal part.`, 1),
+      Q(`What does this print?`, `System.out.println(true && false);`, [`false`, `true`, `null`, `It does not compile`], `&& needs both sides to be true. Here one side is false.`, 1),
+      Q(`What does this print?`, `int x = 4;\nx += 3;\nSystem.out.println(x);`, [`7`, `4`, `3`, `12`], `x += 3 is the same as x = x + 3.`, 1)
+    ],
+    hard: [
+      Q(`What does this print?`, `System.out.println(2 + 3 * 4);`, [`14`, `20`, `24`, `9`], `Multiplication runs first: 3 * 4 is 12. Then 2 + 12 is 14.`, 1),
+      Q(`What does this print?`, `int a = 5;\nSystem.out.println(a++ + 1);`, [`6`, `7`, `5`, `It does not compile`], `a++ gives the old value (5) and then adds 1 to a. So the line works out 5 + 1.`, 1),
+      Q(`What does this print?`, `System.out.println(10 % 4 == 2);`, [`true`, `false`, `2`, `It does not compile`], `10 % 4 is 2, and 2 == 2 is true.`, 1),
+      Q(`What does this print?`, `int x = 3;\nint y = ++x * 2;\nSystem.out.println(y);`, [`8`, `6`, `7`, `9`], `++x adds 1 first, so x becomes 4. Then 4 * 2 is 8.`, 1)
+    ]
+  },
+  {
+    title: `Decisions`, blurb: `Choose what runs`,
+    text: [
+      `An [[if]] block runs when its condition is true. Add [[else if]] for more checks and [[else]] for everything left over.`,
+      `[[switch]] picks between fixed values. End each case with [[break]], or the next case runs too.`
+    ],
+    code: `int score = 75;\nif (score >= 90) {\n    System.out.println("A");\n} else if (score >= 70) {\n    System.out.println("B");\n} else {\n    System.out.println("C");\n}\nString r = (score >= 50) ? "Pass" : "Fail";`,
+    points: [`Compare Strings with [[.equals()]], not [[==]].`, `The ternary [[cond ? a : b]] is a one-line if/else.`],
+    easy: [
+      Q(`Which keyword starts a decision?`, null, [`if`, `for`, `void`, `new`], `if runs code only when its condition is true.`, 1),
+      Q(`When does the else block run?`, null, [`When the if condition is false`, `Every time`, `When the if condition is true`, `Never`], `else is the fallback for when the if condition fails.`),
+      Q(`Which brackets wrap an if condition?`, null, [`( )`, `[ ]`, `< >`, `" "`], `The condition goes in round brackets, like if (x > 3).`, 1),
+      Q(`When is switch a good choice?`, null, [`Choosing between many fixed values`, `Repeating code`, `Storing a number`, `Printing text`], `switch compares one value against a list of cases.`)
+    ],
+    medium: [
+      Q(`What does this print?`, `int n = 8;\nif (n > 10) {\n    System.out.println("A");\n} else {\n    System.out.println("B");\n}`, [`B`, `A`, `A and B`, `Nothing`], `8 is not greater than 10, so the else block runs.`, 1),
+      Q(`What does this print?`, `int score = 75;\nif (score >= 90) System.out.println("A");\nelse if (score >= 70) System.out.println("B");\nelse System.out.println("C");`, [`B`, `A`, `C`, `B and C`], `Java checks top to bottom and stops at the first true test. 75 is not 90 or more, but it is 70 or more.`, 1),
+      Q(`If age is 20, what is r?`, `String r = (age >= 18) ? "Adult" : "Minor";`, [`Adult`, `Minor`, `true`, `18`], `The part before ? is the test. When it is true you get the first value.`, 1),
+      Q(`What does break do inside a switch?`, null, [`Stops later cases from running`, `Ends the program`, `Deletes the case`, `Starts a loop`], `Without break, Java keeps running into the next case.`)
+    ],
+    hard: [
+      Q(`What does this print?`, `int x = 5;\nif (x > 3) System.out.println("A");\nif (x > 4) System.out.println("B");\nelse System.out.println("C");`, [`A then B`, `A then C`, `B only`, `A only`], `These are two separate if statements. 5 > 3 prints A. The else belongs to the second if, and 5 > 4 is true, so B prints.`),
+      Q(`What does this print?`, `int d = 1;\nswitch (d) {\n    case 1: System.out.print("One ");\n    case 2: System.out.print("Two ");\n        break;\n    case 3: System.out.print("Three");\n}`, [`One Two`, `One`, `Two`, `One Two Three`], `case 1 has no break, so it falls through into case 2. Then break stops the switch.`, 1),
+      Q(`Which compares two Strings by their text?`, null, [`a.equals(b)`, `a == b`, `a = b`, `a.same(b)`], `== checks whether both variables point to the same object. equals() checks the characters.`, 1),
+      Q(`What does this print?`, `boolean ok = !(5 > 3);\nSystem.out.println(ok);`, [`false`, `true`, `5`, `It does not compile`], `5 > 3 is true, and ! flips it to false.`, 1)
+    ]
+  },
+  {
+    title: `Loops`, blurb: `Repeat code`,
+    text: [
+      `Use [[for]] when you know how many times to repeat, [[while]] when you repeat until something changes, and [[do-while]] when the code must run at least once.`,
+      `[[break]] leaves the loop. [[continue]] skips to the next round.`
+    ],
+    code: `for (int i = 0; i < 3; i++) {\n    System.out.println("Round " + i);\n}\n\nint n = 1;\nwhile (n <= 3) {\n    n++;\n}`,
+    points: [`A for header has three parts: start; condition; step.`, `A loop whose condition never becomes false runs forever.`],
+    easy: [
+      Q(`Which loop repeats a set number of times?`, null, [`for`, `if`, `switch`, `class`], `A for loop counts with a start, a condition and a step.`),
+      Q(`A while loop keeps running while...`, null, [`its condition is true`, `it has run exactly once`, `you press a key`, `never`], `Java checks the condition before every round.`),
+      Q(`What does break do in a loop?`, null, [`Exits the loop`, `Skips one round`, `Restarts the loop`, `Prints a line`], `break jumps out of the loop right away.`),
+      Q(`What does continue do in a loop?`, null, [`Skips to the next round`, `Exits the loop`, `Ends the program`, `Repeats forever`], `continue skips the rest of this round and moves on to the next one.`)
+    ],
+    medium: [
+      Q(`What does this print?`, `for (int i = 0; i < 3; i++) {\n    System.out.print(i + " ");\n}`, [`0 1 2`, `1 2 3`, `0 1 2 3`, `1 2`], `i starts at 0 and the loop stops before 3.`, 1),
+      Q(`What does this print?`, `int i = 1;\nwhile (i <= 3) {\n    System.out.print(i);\n    i++;\n}`, [`123`, `12`, `234`, `321`], `i goes 1, 2, 3. Then i becomes 4 and the loop stops.`, 1),
+      Q(`How many times does this loop run?`, `for (int i = 0; i < 5; i++) { }`, [`5`, `4`, `6`, `Forever`], `i takes the values 0, 1, 2, 3 and 4.`, 1),
+      Q(`What does this print?`, `int sum = 0;\nfor (int i = 1; i <= 4; i++) {\n    sum += i;\n}\nSystem.out.println(sum);`, [`10`, `4`, `6`, `24`], `1 + 2 + 3 + 4 is 10.`, 1)
+    ],
+    hard: [
+      Q(`What does this print?`, `for (int i = 1; i <= 5; i++) {\n    if (i == 3) continue;\n    System.out.print(i);\n}`, [`1245`, `12345`, `12`, `45`], `When i is 3, continue skips the print. Every other number prints.`, 1),
+      Q(`What does this print?`, `for (int i = 1; i <= 5; i++) {\n    if (i == 3) break;\n    System.out.print(i);\n}`, [`12`, `1245`, `123`, `12345`], `At i = 3 the loop ends before anything prints.`, 1),
+      Q(`What does this print?`, `int i = 5;\ndo {\n    System.out.print(i);\n    i++;\n} while (i < 5);`, [`5`, `Nothing`, `56`, `It never stops`], `A do-while runs its body once before it checks the condition.`, 1),
+      Q(`What does this print?`, `int count = 0;\nfor (int a = 1; a <= 2; a++) {\n    for (int b = 1; b <= 3; b++) {\n        count++;\n    }\n}\nSystem.out.println(count);`, [`6`, `5`, `2`, `3`], `The inner loop runs 3 times for each of the 2 outer rounds: 2 x 3 is 6.`, 1)
+    ]
+  },
+  {
+    title: `Methods`, blurb: `Reusable code`,
+    text: [
+      `A method is a named block of code you can call as many times as you like. It can take parameters and send a value back with [[return]].`,
+      `[[void]] means the method returns nothing. Java passes a copy of simple values, so changing a parameter inside a method does not change the original.`
+    ],
+    code: `static int square(int n) {\n    return n * n;\n}\n\npublic static void main(String[] args) {\n    System.out.println(square(4)); // 16\n}`,
+    points: [`The same name with different parameters is called overloading.`, `A method that calls itself is using recursion.`],
+    easy: [
+      Q(`What is a method?`, null, [`A reusable block of code`, `A type of variable`, `A comment`, `A file`], `You write it once and call it whenever you need it.`),
+      Q(`What does void mean?`, null, [`The method returns nothing`, `The method returns a number`, `The method is private`, `The method is empty`], `A void method does its job but sends no value back.`),
+      Q(`Which keyword sends a value back from a method?`, null, [`return`, `send`, `give`, `back`], `return ends the method and hands a value to the caller.`, 1),
+      Q(`Values you pass into a method are called...`, null, [`arguments`, `loops`, `packages`, `comments`], `The method receives them in its parameters.`)
+    ],
+    medium: [
+      Q(`What does this print?`, `static int square(int n) {\n    return n * n;\n}\n\nSystem.out.println(square(4));`, [`16`, `8`, `4`, `44`], `square(4) returns 4 * 4, which is 16.`, 1),
+      Q(`What does this print?`, `static void hi(String n) {\n    System.out.println("Hi " + n);\n}\n\nhi("Ana");`, [`Hi Ana`, `Hi n`, `Ana`, `Nothing`], `The parameter n holds "Ana", so the method prints Hi Ana.`, 1),
+      Q(`Which line declares a method that returns a decimal?`, null, [`static double avg(int a, int b)`, `static avg(int a, int b)`, `double static void avg()`, `avg double(int a, int b)`], `The return type comes before the method name.`, 1),
+      Q(`What happens if you call a method with the wrong number of arguments?`, null, [`Compile error`, `It runs anyway`, `It returns 0`, `It prints null`], `Java checks the call against the method's parameters before the program runs.`)
+    ],
+    hard: [
+      Q(`What does this print?`, `static int add(int a, int b) {\n    return a + b;\n}\n\nSystem.out.println(add(2, add(3, 4)));`, [`9`, `5`, `7`, `234`], `add(3, 4) is 7 first. Then add(2, 7) is 9.`, 1),
+      Q(`What does this print?`, `static void change(int x) {\n    x = 99;\n}\n\nint n = 5;\nchange(n);\nSystem.out.println(n);`, [`5`, `99`, `0`, `It does not compile`], `The method gets a copy of n. Changing the copy leaves n alone.`, 1),
+      Q(`What is method overloading?`, null, [`Same name, different parameters`, `Calling a method twice`, `A method that never ends`, `Two classes with one name`], `Java picks the version that matches the arguments you pass.`),
+      Q(`What does this print?`, `static int f(int n) {\n    if (n == 0) return 0;\n    return n + f(n - 1);\n}\n\nSystem.out.println(f(3));`, [`6`, `3`, `0`, `It never stops`], `f(3) is 3 + f(2), which is 3 + 2 + f(1), which is 3 + 2 + 1 + f(0). And f(0) is 0.`, 1)
+    ]
+  },
+  {
+    title: `Arrays & ArrayList`, blurb: `Store many values`,
+    text: [
+      `An array holds a fixed number of values of one type. Positions, called indexes, start at 0, so the last index is length - 1.`,
+      `An [[ArrayList]] grows and shrinks as you go. Use [[add]], [[get]], [[remove]] and [[size]].`
+    ],
+    code: `int[] nums = {4, 8, 15};\nSystem.out.println(nums[1]);      // 8\nSystem.out.println(nums.length);  // 3\n\nArrayList<String> list = new ArrayList<>();\nlist.add("x");\nlist.add("y");\nSystem.out.println(list.size());  // 2`,
+    points: [`Going past the last index throws ArrayIndexOutOfBoundsException.`, `[[for (String s : list)]] loops over every item.`, `Add [[import java.util.ArrayList;]] at the top to use ArrayList.`],
+    easy: [
+      Q(`What does int[] nums = {1, 2, 3}; create?`, null, [`An array holding three numbers`, `One number`, `A method`, `A loop`], `The curly brackets list the starting values of the array.`),
+      Q(`Array positions start counting at...`, null, [`0`, `1`, `-1`, `2`], `The first item sits at index 0.`, 1),
+      Q(`Which one can grow and shrink?`, null, [`ArrayList`, `int[]`, `String[]`, `char`], `An array has a fixed size. An ArrayList changes size as you add and remove items.`, 1),
+      Q(`How do you get the number of items in an array called nums?`, null, [`nums.length`, `nums.size()`, `length(nums)`, `nums.count`], `Arrays use the length field, with no brackets. An ArrayList uses size().`, 1)
+    ],
+    medium: [
+      Q(`What does this print?`, `int[] a = {4, 8, 15};\nSystem.out.println(a[1]);`, [`8`, `4`, `15`, `1`], `Index 1 is the second item.`, 1),
+      Q(`What does this print?`, `ArrayList<String> l = new ArrayList<>();\nl.add("x");\nl.add("y");\nSystem.out.println(l.size());`, [`2`, `0`, `1`, `xy`], `Two items were added, so the size is 2.`, 1),
+      Q(`What does this print?`, `int[] a = new int[3];\nSystem.out.println(a[0]);`, [`0`, `null`, `It does not compile`, `3`], `A new int array starts out filled with zeros.`, 1),
+      Q(`Which line adds an item to an ArrayList?`, null, [`list.add(item)`, `list.push(item)`, `list.append(item)`, `list.put(item)`], `An ArrayList uses add(). Push and append belong to other languages.`, 1)
+    ],
+    hard: [
+      Q(`What happens when this runs?`, `int[] a = {1, 2, 3};\nSystem.out.println(a[3]);`, [`ArrayIndexOutOfBoundsException`, `It prints 3`, `It prints 0`, `It does not compile`], `The last valid index is 2. Index 3 is outside the array, which fails while the program runs.`),
+      Q(`What does this print?`, `int[] a = {2, 4, 6};\nint s = 0;\nfor (int n : a) {\n    s += n;\n}\nSystem.out.println(s);`, [`12`, `6`, `4`, `2`], `The loop adds every item: 2 + 4 + 6 is 12.`, 1),
+      Q(`What does this print?`, `ArrayList<Integer> l = new ArrayList<>();\nl.add(5);\nl.add(7);\nl.remove(0);\nSystem.out.println(l.get(0));`, [`7`, `5`, `0`, `It does not compile`], `remove(0) removes the item at index 0, which is 5. Then 7 moves down to index 0.`, 1),
+      Q(`What does this print?`, `String[] w = {"a", "b", "c"};\nSystem.out.println(w[w.length - 1]);`, [`c`, `b`, `a`, `3`], `length is 3, so length - 1 is 2, which is the last index.`, 1)
+    ]
+  },
+  {
+    title: `Classes & Objects`, blurb: `Build your own types`,
+    text: [
+      `A class is a blueprint. The keyword [[new]] builds an object from it. Fields store data, methods do things, and the constructor runs when the object is created.`,
+      `[[private]] hides a field, and getters and setters give controlled access. [[extends]] inherits from a parent class. [[this]] means the current object and [[super]] reaches the parent.`
+    ],
+    code: `class Dog {\n    private String name;\n\n    Dog(String name) {\n        this.name = name;\n    }\n\n    String getName() {\n        return name;\n    }\n}\n\nDog d = new Dog("Rex");\nSystem.out.println(d.getName()); // Rex`,
+    points: [`[[static]] members belong to the class and are shared by every object.`, `A child class can override a parent method with its own version.`],
+    easy: [
+      Q(`What is a class?`, null, [`A blueprint for objects`, `A loop`, `A number type`, `A comment`], `Objects are built from a class.`),
+      Q(`Which keyword creates an object?`, null, [`new`, `make`, `create`, `object`], `Dog d = new Dog(); builds one Dog.`, 1),
+      Q(`What is a constructor?`, null, [`Code that runs when an object is created`, `A kind of loop`, `A comment`, `A variable type`], `It has the same name as the class and sets up the new object.`),
+      Q(`Which keyword makes a class inherit from another?`, null, [`extends`, `copies`, `imports`, `loops`], `class Cat extends Animal makes Cat a child of Animal.`, 1)
+    ],
+    medium: [
+      Q(`What does this print?`, `class Dog {\n    String name;\n    Dog(String n) {\n        name = n;\n    }\n}\n\nDog d = new Dog("Rex");\nSystem.out.println(d.name);`, [`Rex`, `Dog`, `name`, `null`], `The constructor stored "Rex" in the name field.`, 1),
+      Q(`What does private do?`, null, [`Only the same class can use it`, `Anyone can use it`, `It hides it from the compiler`, `It makes it constant`], `private protects a field. Other classes use getters and setters instead.`),
+      Q(`What does this refer to inside a class?`, null, [`The current object`, `The parent class`, `The main method`, `A static variable`], `Inside a class, this means the object being worked on.`),
+      Q(`Why write a getter method?`, null, [`To read a private field safely`, `To delete an object`, `To make a loop`, `To import a class`], `A getter lets other classes read a value while the field stays private.`)
+    ],
+    hard: [
+      Q(`What does this print?`, `class Animal {\n    void speak() {\n        System.out.println("...");\n    }\n}\nclass Cat extends Animal {\n    void speak() {\n        System.out.println("Meow");\n    }\n}\n\nAnimal a = new Cat();\na.speak();`, [`Meow`, `...`, `It does not compile`, `Nothing`], `The object is a Cat, so the Cat version of speak() runs. This is called overriding.`, 1),
+      Q(`What does this print?`, `class Counter {\n    static int total = 0;\n    Counter() {\n        total++;\n    }\n}\n\nnew Counter();\nnew Counter();\nSystem.out.println(Counter.total);`, [`2`, `0`, `1`, `It does not compile`], `total is static, so every Counter shares one copy. Two objects added 1 each.`, 1),
+      Q(`Which one is encapsulation?`, null, [`Private fields with public getters and setters`, `Using many loops`, `Writing short names`, `Using only static methods`], `Encapsulation keeps data private and exposes it only through methods.`),
+      Q(`Which call runs the parent class constructor?`, null, [`super(...)`, `this(...)`, `parent(...)`, `base(...)`], `super(...) calls the constructor of the class you extend.`, 1)
+    ]
+  }
+];
+const X = (q, s, sol, re) => ({ q, s, sol, re });
+/* Extreme: the player types code. Each check is a regex run on whitespace-normalised code, so spacing and line breaks do not matter. */
+const EXTREME = [
+  [
+    X(`Declare an int variable named age that holds 20.`, null, `int age = 20;`, [/int age=20;/]),
+    X(`Declare a String variable named name that holds the text Maria.`, null, `String name = "Maria";`, [/String name="Maria";/]),
+    X(`Declare a double named price that holds 19.99. On the next line, declare a boolean named isOpen that holds true.`, null, `double price = 19.99;\nboolean isOpen = true;`, [/double price=19\.99;/, /boolean isOpen=true;/]),
+    X(`Declare an int x that holds 5. Add 2 to x, then print x.`, null, `int x = 5;\nx = x + 2;\nSystem.out.println(x);`, [/int x=5;/, /(x=x\+2;|x=2\+x;|x\+=2;)/, /System\.out\.println\(x\);/])
+  ],
+  [
+    X(`Print the remainder when 17 is divided by 5.`, null, `System.out.println(17 % 5);`, [/System\.out\.println\(17%5\);/]),
+    X(`Declare an int a that holds 10 and an int b that holds 4. Print their sum.`, null, `int a = 10;\nint b = 4;\nSystem.out.println(a + b);`, [/int a=10;/, /int b=4;/, /System\.out\.println\((a\+b|b\+a)\);/]),
+    X(`Declare an int n that holds 7. Increase it by 1 using ++, then print n.`, null, `int n = 7;\nn++;\nSystem.out.println(n);`, [/int n=7;/, /(n\+\+;|\+\+n;)/, /System\.out\.println\(n\);/]),
+    X(`Print the result of one expression: 8 is greater than 3 AND 8 is less than 10.`, null, `System.out.println(8 > 3 && 8 < 10);`, [/System\.out\.println\((8>3&&8<10|8<10&&8>3|3<8&&8<10|8<10&&3<8)\);/])
+  ],
+  [
+    X(`age is already declared. Write an if statement that prints Adult when age is 18 or more.`, `int age = 20;\n`, `int age = 20;\nif (age >= 18) {\n    System.out.println("Adult");\n}`, [/if\((age>=18|18<=age)\)\{?System\.out\.println\("Adult"\);\}?/]),
+    X(`score is already declared. Print Pass when score is 50 or more, otherwise print Fail.`, `int score = 65;\n`, `int score = 65;\nif (score >= 50) {\n    System.out.println("Pass");\n} else {\n    System.out.println("Fail");\n}`, [/(if\(score>=50\)\{?System\.out\.println\("Pass"\);\}?else ?\{?System\.out\.println\("Fail"\);\}?|if\(score<50\)\{?System\.out\.println\("Fail"\);\}?else ?\{?System\.out\.println\("Pass"\);\}?)/]),
+    X(`n is already declared. Use the ternary operator to set a String r to Even when n is even, otherwise Odd.`, `int n = 4;\n`, `int n = 4;\nString r = (n % 2 == 0) ? "Even" : "Odd";`, [/String r=\(?n%2==0\)?\?"Even":"Odd";/]),
+    X(`day is already declared. Write a switch on day: case 1 prints Mon, case 2 prints Tue, anything else prints Other.`, `int day = 2;\n`, `int day = 2;\nswitch (day) {\n    case 1:\n        System.out.println("Mon");\n        break;\n    case 2:\n        System.out.println("Tue");\n        break;\n    default:\n        System.out.println("Other");\n}`, [/switch\(day\)\{/, /case 1:System\.out\.println\("Mon"\);break;/, /case 2:System\.out\.println\("Tue"\);break;/, /default:System\.out\.println\("Other"\);/])
+  ],
+  [
+    X(`Write a for loop that prints the numbers 1 to 5, one per line.`, null, `for (int i = 1; i <= 5; i++) {\n    System.out.println(i);\n}`, [/for\(int (\w+)=1;\1(<=5|<6);(\1\+\+|\+\+\1)\)\{?System\.out\.println\(\1\);\}?/]),
+    X(`n is already declared. Use a while loop to print 3, 2, 1, counting down.`, `int n = 3;\n`, `int n = 3;\nwhile (n >= 1) {\n    System.out.println(n);\n    n--;\n}`, [/while\(n(>=1|>0)\)\{System\.out\.println\(n\);(n--;|--n;|n-=1;|n=n-1;)\}/]),
+    X(`Add up the numbers 1 to 10 in an int named sum, then print sum.`, null, `int sum = 0;\nfor (int i = 1; i <= 10; i++) {\n    sum += i;\n}\nSystem.out.println(sum);`, [/int sum=0;/, /for\(int (\w+)=1;\1(<=10|<11);(\1\+\+|\+\+\1)\)\{?sum(\+=\1|=sum\+\1|=\1\+sum);\}?/, /System\.out\.println\(sum\);/]),
+    X(`Print only the even numbers from 1 to 10, one per line.`, null, `for (int i = 1; i <= 10; i++) {\n    if (i % 2 == 0) {\n        System.out.println(i);\n    }\n}`, [/for\(int (?<v>\w+)=1;\k<v>(<=10|<11);(\k<v>\+\+|\+\+\k<v>)\)\{?if\(\k<v>%2==0\)\{?System\.out\.println\(\k<v>\);\}?\}?|for\(int (?<w>\w+)=2;\k<w>(<=10|<11);\k<w>\+=2\)\{?System\.out\.println\(\k<w>\);\}?/])
+  ],
+  [
+    X(`Write a static method named twice that takes an int n and returns n * 2.`, null, `static int twice(int n) {\n    return n * 2;\n}`, [/(public )?static int twice\(int (\w+)\)\{return (\2\*2|2\*\2|\2\+\2);\}/]),
+    X(`Write a static void method named greet that takes a String name and prints Hello, followed by the name. For example greet("Ana") prints Hello, Ana`, null, `static void greet(String name) {\n    System.out.println("Hello, " + name);\n}`, [/(public )?static void greet\(String (\w+)\)\{System\.out\.println\("Hello, "\+\2\);\}/]),
+    X(`Write a static method named isEven that takes an int n and returns true when n is even. Use one return statement.`, null, `static boolean isEven(int n) {\n    return n % 2 == 0;\n}`, [/(public )?static boolean isEven\(int (\w+)\)\{return \(?\2%2==0\)?;\}/]),
+    X(`Write a static method named max that takes two ints, a and b, and returns the bigger one.`, null, `static int max(int a, int b) {\n    if (a > b) {\n        return a;\n    }\n    return b;\n}`, [/(public )?static int max\(int (\w+),int (\w+)\)\{(if\(\2>\3\)\{?return \2;\}?(else ?\{?)?return \3;\}?|if\(\3>\2\)\{?return \3;\}?(else ?\{?)?return \2;\}?|return \(?\2>\3\)?\?\2:\3;|return \(?\3>\2\)?\?\3:\2;|return Math\.max\(\2,\3\);)\}/])
+  ],
+  [
+    X(`Create an int array named nums that holds 3, 6 and 9.`, null, `int[] nums = {3, 6, 9};`, [/int(\[\]nums| nums\[\])=(new int\[\])?\{3,6,9\};/]),
+    X(`nums is already declared. Print the second item of nums.`, `int[] nums = {3, 6, 9};\n`, `int[] nums = {3, 6, 9};\nSystem.out.println(nums[1]);`, [/System\.out\.println\(nums\[1\]\);/]),
+    X(`Create an ArrayList<String> named names. Add Ana and Ben, then print how many items it holds.`, null, `ArrayList<String> names = new ArrayList<>();\nnames.add("Ana");\nnames.add("Ben");\nSystem.out.println(names.size());`, [/ArrayList<String>names=new ArrayList<(String)?>\(\);/, /names\.add\("Ana"\);/, /names\.add\("Ben"\);/, /System\.out\.println\(names\.size\(\)\);/]),
+    X(`nums is already declared. Use a for-each loop to print every number in nums.`, `int[] nums = {3, 6, 9};\n`, `int[] nums = {3, 6, 9};\nfor (int n : nums) {\n    System.out.println(n);\n}`, [/for\(int (\w+):nums\)\{?System\.out\.println\(\1\);\}?/])
+  ],
+  [
+    X(`Write a class named Car with one String field named brand.`, null, `class Car {\n    String brand;\n}`, [/(public )?class Car\{(private |public )?String brand;\}/]),
+    X(`Add a constructor to Car that takes a String b and stores it in brand.`, `class Car {\n    String brand;\n\n    // your constructor goes here\n}`, `class Car {\n    String brand;\n\n    Car(String b) {\n        brand = b;\n    }\n}`, [/class Car\{(private )?String brand;(public )?Car\(String (\w+)\)\{(brand=\3;|this\.brand=\3;)\}\}/]),
+    X(`Car is already written. Create a Car object named c with the brand Mazda, then print its brand.`, `class Car {\n    String brand;\n    Car(String b) {\n        brand = b;\n    }\n}\n\n`, `class Car {\n    String brand;\n    Car(String b) {\n        brand = b;\n    }\n}\n\nCar c = new Car("Mazda");\nSystem.out.println(c.brand);`, [/Car c=new Car\("Mazda"\);/, /System\.out\.println\(c\.brand\);/]),
+    X(`Animal is already written. Write a class Dog that extends Animal and overrides speak() so it prints Woof.`, `class Animal {\n    void speak() {\n        System.out.println("...");\n    }\n}\n\n`, `class Animal {\n    void speak() {\n        System.out.println("...");\n    }\n}\n\nclass Dog extends Animal {\n    void speak() {\n        System.out.println("Woof");\n    }\n}`, [/class Dog extends Animal\{(@Override )?(public )?void speak\(\)\{System\.out\.println\("Woof"\);\}\}/])
+  ]
+];
+TOPICS.forEach((t, i) => { t.extreme = EXTREME[i]; });
+
+/* Code checker helpers */
+const SPLIT = /\/\/[^\n]*|\/\*[\s\S]*?\*\/|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'/g;
+function norm(src) {
+  const strs = [];
+  let t = src.replace(SPLIT, m => {
+    if (m[0] === '/') return m[1] === '/' ? '' : ' ';
+    strs.push(m);
+    return '\u0001' + (strs.length - 1) + '\u0002';
+  });
+  t = t.replace(/\s+/g, ' ').replace(/ ?([;(){}\[\]=<>+\-*\/%,!&|?:.]) ?/g, '$1').trim();
+  return t.replace(/\u0001(\d+)\u0002/g, (_, i) => strs[+i]);
+}
+function balanceProblem(src) {
+  const t = src.replace(SPLIT, ' ');
+  if (/["']/.test(t)) return 'A quote mark is not closed. Check the text inside your quotes.';
+  const pairs = { ')': '(', '}': '{', ']': '[' }, st = [];
+  for (const ch of t) {
+    if ('({['.indexOf(ch) >= 0) st.push(ch);
+    else if (pairs[ch] && st.pop() !== pairs[ch]) return 'Your brackets do not match. Count every ( ) { } and [ ].';
+  }
+  return st.length ? 'A bracket is not closed. Count every ( ) { } and [ ].' : '';
+}
+/*END DATA*/
+
+const MODES = {
+  easy:   { label: 'Easy',   lives: null, time: null, mult: 1, hint: true,  blurb: 'No pressure. Hints are on and wrong answers cost nothing.' },
+  medium: { label: 'Medium', lives: 3,    time: null, mult: 2, hint: false, blurb: 'Three hearts. Every wrong answer costs one. No hints.' },
+  hard:   { label: 'Hard',   lives: 2,    time: 20,   mult: 3, hint: false, blurb: 'Two hearts and 20 seconds a question. Triple XP.' },
+  extreme: { label: 'Extreme', lives: 3,   time: null, mult: 4, hint: false, blurb: 'No options to pick from. Type the Java yourself. Three hearts and four times the XP.' }
+};
+const ORDER = ['easy', 'medium', 'hard', 'extreme'];
+const LV = 150;
+const STAR = 'M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.5 6 20.9l1.3-6.7-5-4.7 6.8-.8z';
+const HEART = 'M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 4.8 6.2 4.8c2.1 0 3.5 1.1 4.3 2.4.8-1.3 2.2-2.4 4.3-2.4 3.5 0 5.3 3.6 3.8 7C19.5 16.4 12 21 12 21z';
+
+const app = document.getElementById('app');
+let P = load();
+let S = { screen: 'home', topic: 0, mode: MODES[P.mode] ? P.mode : 'easy', quiz: null, result: null, resetArm: false };
+let timerId = null;
+
+function load() {
+  try {
+    const r = JSON.parse(localStorage.getItem('javaquest') || 'null');
+    if (r && typeof r === 'object') return { xp: +r.xp || 0, best: r.best && typeof r.best === 'object' ? r.best : {}, mode: r.mode || 'easy' };
+  } catch (e) {}
+  return { xp: 0, best: {}, mode: 'easy' };
+}
+function save() { try { localStorage.setItem('javaquest', JSON.stringify(P)); } catch (e) {} }
+
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function fmt(s) { return esc(s).replace(/\[\[(.+?)\]\]/g, '<code>$1</code>'); }
+const TOKEN = /\/\/.*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b(?:public|class|static|void|int|double|boolean|char|String|if|else|for|while|do|return|new|extends|private|this|super|switch|case|break|continue|true|false|final|ArrayList|Integer|import)\b|\b\d+(?:\.\d+)?\b/g;
+function hl(code) {
+  let out = '', last = 0, m;
+  TOKEN.lastIndex = 0;
+  while ((m = TOKEN.exec(code))) {
+    out += esc(code.slice(last, m.index));
+    const t = m[0];
+    const cls = t.startsWith('//') ? 'c' : (t[0] === '"' || t[0] === "'") ? 's' : /^\d/.test(t) ? 'n' : 'k';
+    out += '<span class="' + cls + '">' + esc(t) + '</span>';
+    last = m.index + t.length;
+  }
+  return out + esc(code.slice(last));
+}
+function stars(n, size) {
+  let h = '<span class="stars" role="img" aria-label="' + n + ' of 3 stars">';
+  for (let i = 0; i < 3; i++) h += '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" aria-hidden="true"><path d="' + STAR + '" fill="' + (i < n ? 'var(--gold)' : 'var(--star-off)') + '"/></svg>';
+  return h + '</span>';
+}
+function hearts(n, total) {
+  let h = '<span class="lives" role="img" aria-label="' + n + ' hearts left">';
+  for (let i = 0; i < total; i++) h += '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="' + HEART + '" fill="' + (i < n ? 'var(--bad)' : 'var(--star-off)') + '"/></svg>';
+  return h + '</span>';
+}
+const best = (i, m) => P.best[i + ':' + m] || 0;
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+function modeSwitch() {
+  return '<div class="seg" role="group" aria-label="Difficulty">' + ORDER.map(m =>
+    '<button class="m-' + m + '" data-a="mode" data-m="' + m + '" aria-pressed="' + (S.mode === m) + '">' + MODES[m].label + '</button>').join('') + '</div>';
+}
+
+/* screens */
+function home() {
+  const lvl = 1 + Math.floor(P.xp / LV), into = P.xp % LV;
+  return '<main class="wrap">' +
+    '<header class="top"><div><h1 class="brand">Java Quest</h1><p class="sub">Learn a lesson, then prove it.</p></div>' +
+    '<div class="lvl"><span><b>Level ' + lvl + '</b><b>' + P.xp + ' XP</b></span><div class="bar"><i style="width:' + (into / LV * 100) + '%"></i></div></div></header>' +
+    modeSwitch() + '<p class="modeNote">' + MODES[S.mode].blurb + '</p>' +
+    '<ol class="topics">' + TOPICS.map((t, i) =>
+      '<li><button class="card" data-a="topic" data-i="' + i + '"><span class="num">' + (i + 1) + '</span><span class="ct"><b>' + esc(t.title) + '</b><small>' + esc(t.blurb) + '</small><span class="rows">' +
+      ORDER.map(m => '<span class="mini m-' + m + '">' + MODES[m].label + stars(best(i, m), 13) + '</span>').join('') + '</span></span></button></li>').join('') + '</ol>' +
+    '<div class="foot"><button class="link" data-a="reset">' + (S.resetArm ? 'Tap again to erase all progress' : 'Reset progress') + '</button></div></main>';
+}
+
+function topicScreen() {
+  const t = TOPICS[S.topic];
+  return '<main class="wrap">' +
+    '<button class="back" data-a="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>All lessons</button>' +
+    '<div><p class="kicker">Lesson ' + (S.topic + 1) + ' of ' + TOPICS.length + '</p><h1 class="title">' + esc(t.title) + '</h1></div>' +
+    '<section class="lesson">' + t.text.map(p => '<p>' + fmt(p) + '</p>').join('') +
+    '<pre class="code"><code>' + hl(t.code) + '</code></pre>' +
+    '<h2 class="h3">Remember</h2><ul class="points">' + t.points.map(p => '<li>' + fmt(p) + '</li>').join('') + '</ul></section></main>' +
+    '<div class="dock"><div class="dock-in">' + modeSwitch() + '<button class="primary" data-a="start">Start ' + MODES[S.mode].label.toLowerCase() + ' quiz</button></div></div>';
+}
+
+function quizScreen() {
+  const z = S.quiz, M = MODES[z.mode], q = z.qs[z.i], total = z.qs.length;
+  const done = z.i + (z.answered ? 1 : 0);
+  let h = '<div class="qtop"><div class="qtop-in"><div class="qrow">' +
+    '<button class="x" data-a="quit" aria-label="Quit quiz"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+    '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + done + '"><i style="width:' + (done / total * 100) + '%"></i></div>' +
+    (M.lives !== null ? hearts(z.lives, M.lives) : '<span class="lives">Hints</span>') + '</div>';
+  if (M.time) h += '<div class="timer"><i id="tbar"></i></div><div class="tlabel" id="tlabel" aria-hidden="true">' + M.time + 's</div>';
+  h += '</div></div>';
+  if (q.code) return h + codeBody(z, q, total);
+  h += '<main class="qbody"><p class="qlabel"><span>Question ' + (z.i + 1) + ' of ' + total + '</span><span>' + esc(TOPICS[z.topic].title) + '</span></p>' +
+    '<h2 class="q">' + fmt(q.q) + '</h2>' + (q.c ? '<pre class="code"><code>' + hl(q.c) + '</code></pre>' : '') +
+    '<div class="opts">' + q.opts.map((o, i) => {
+      let c = 'opt' + (q.m ? ' mono' : '');
+      const gone = z.gone.indexOf(i) >= 0;
+      if (z.answered) c += o.ok ? ' good' : (i === z.chosen ? ' bad' : ' dim');
+      else if (gone) c += ' gone';
+      return '<button class="' + c + '" data-a="pick" data-i="' + i + '"' + (z.answered || gone ? ' disabled' : '') + '><span class="ltr">' + 'ABCD'[i] + '</span><span class="t">' + esc(o.t) + '</span></button>';
+    }).join('') + '</div>';
+  if (M.hint && !z.answered && !z.hintUsed) h += '<button class="hintbtn" data-a="hint">Remove two wrong answers</button>';
+  h += '</main>';
+  if (z.answered) {
+    const last = z.i === total - 1 || (!z.right && z.lives === 0);
+    const right = q.opts.find(o => o.ok).t;
+    h += '<div class="fb ' + (z.right ? 'good' : 'bad') + '" role="status"><div class="fb-in"><h3>' + (z.right ? 'Correct' : (z.timedOut ? 'Time is up' : 'Not quite')) + '</h3>' +
+      (z.right ? '' : '<p>Answer: <code>' + esc(right) + '</code></p>') + '<p>' + fmt(q.e) + '</p>' +
+      '<button class="primary" data-a="next">' + (last ? 'See results' : 'Continue') + '</button></div></div>';
+  }
+  return h;
+}
+
+function codeBody(z, q, total) {
+  let h = '<main class="qbody"><p class="qlabel"><span>Question ' + (z.i + 1) + ' of ' + total + '</span><span>' + esc(TOPICS[z.topic].title) + '</span></p>' +
+    '<h2 class="q">' + fmt(q.q) + '</h2>';
+  if (!z.answered) {
+    const rows = Math.min(14, Math.max(8, z.input.split('\n').length + 3));
+    h += '<label class="lbl" for="code">Your code</label>' +
+      '<textarea id="code" class="editor" rows="' + rows + '" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" wrap="off">' + esc(z.input) + '</textarea>' +
+      '<p class="cmsg" id="cmsg" role="alert"></p>' +
+      '<div class="crow"><button class="primary" data-a="check">Check my code</button><button class="ghost" data-a="giveup">Show the answer</button></div>';
+  } else {
+    h += '<p class="lbl">Your code</p><pre class="code"><code>' + (z.input.trim() ? hl(z.input) : '(nothing written)') + '</code></pre>' +
+      '<p class="lbl">One way to write it</p><pre class="code"><code>' + hl(q.sol) + '</code></pre>';
+  }
+  h += '</main>';
+  if (z.answered) {
+    const last = z.i === total - 1 || (!z.right && z.lives === 0);
+    h += '<div class="fb ' + (z.right ? 'good' : 'bad') + '" role="status"><div class="fb-in"><h3>' + (z.right ? 'Correct' : z.gaveUp ? 'Here is the answer' : 'Not quite') + '</h3>' +
+      '<p>' + (z.right ? 'Your code does what the task asks. Yours may look different from the example, and that is fine.' : 'Compare your code with the example. Check spelling, semicolons and the exact names the task gives you.') + '</p>' +
+      '<button class="primary" data-a="next">' + (last ? 'See results' : 'Continue') + '</button></div></div>';
+  }
+  return h;
+}
+function answerCode(ok, gaveUp) {
+  const z = S.quiz, M = MODES[z.mode];
+  z.answered = true; z.right = ok; z.gaveUp = gaveUp; z.timedOut = false; z.chosen = -1;
+  if (ok) z.correct++; else if (M.lives !== null) z.lives--;
+  render(); window.scrollTo(0, 0);
+}
+
+function resultScreen() {
+  const r = S.result, t = TOPICS[r.topic];
+  const head = r.stars === 3 ? 'Perfect run' : r.stars > 0 ? 'Lesson cleared' : 'Not this time';
+  const sub = r.out ? 'You ran out of hearts. Read the lesson again and give it another go.' : r.stars === 0 ? 'Read the explanations and try again. Easy mode has hints.' : 'You got ' + r.correct + ' of ' + r.total + ' right in ' + MODES[r.mode].label.toLowerCase() + ' mode.';
+  return '<main class="wrap"><div class="res">' +
+    '<p class="kicker">' + esc(t.title) + ' / ' + MODES[r.mode].label + '</p>' + stars(r.stars, 56) +
+    '<h1 class="title">' + head + '</h1><p class="note">' + sub + '</p>' +
+    '<div class="tiles"><div class="tile"><b>' + r.correct + '/' + r.total + '</b><span>Correct</span></div><div class="tile"><b>+' + r.xp + '</b><span>XP earned</span></div></div>' +
+    (r.levelUp ? '<p class="note"><b>Level up.</b> You are now level ' + r.levelUp + '.</p>' : '') +
+    '<div class="btns"><button class="primary" data-a="again">Play again</button>' +
+    (r.topic < TOPICS.length - 1 ? '<button class="ghost" data-a="nexttopic">Next lesson</button>' : '') +
+    '<button class="ghost" data-a="home">All lessons</button></div></div></main>';
+}
+
+function render() {
+  app.innerHTML = S.screen === 'home' ? home() : S.screen === 'topic' ? topicScreen() : S.screen === 'quiz' ? quizScreen() : resultScreen();
+}
+function go(screen) { stopTimer(); S.screen = screen; render(); window.scrollTo(0, 0); }
+
+/* quiz logic */
+function startQuiz() {
+  const t = TOPICS[S.topic], M = MODES[S.mode];
+  const qs = S.mode === 'extreme'
+    ? shuffle(t.extreme).map(x => ({ code: true, q: x.q, s: x.s, sol: x.sol, re: x.re }))
+    : shuffle(t[S.mode]).map(q => ({ q: q.q, c: q.c, e: q.e, m: q.m, opts: shuffle(q.o.map((x, i) => ({ t: x, ok: i === 0 }))) }));
+  S.quiz = { topic: S.topic, mode: S.mode, qs, i: 0, correct: 0, lives: M.lives, answered: false, chosen: -1, right: false, timedOut: false, hintUsed: false, gone: [], input: qs[0].s || '', gaveUp: false };
+  go('quiz');
+  startTimer();
+}
+function startTimer() {
+  const z = S.quiz, M = MODES[z.mode];
+  if (!M.time) return;
+  const t0 = Date.now();
+  timerId = setInterval(() => {
+    const left = M.time - (Date.now() - t0) / 1000;
+    const bar = document.getElementById('tbar'), lab = document.getElementById('tlabel');
+    if (bar) bar.style.width = Math.max(0, left / M.time * 100) + '%';
+    if (lab) lab.textContent = Math.max(0, Math.ceil(left)) + 's';
+    if (left <= 0) answer(-1);
+  }, 100);
+}
+function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+function answer(i) {
+  const z = S.quiz;
+  if (!z || z.answered) return;
+  stopTimer();
+  const q = z.qs[z.i], M = MODES[z.mode];
+  z.answered = true; z.chosen = i; z.timedOut = i < 0;
+  z.right = i >= 0 && q.opts[i].ok;
+  if (z.right) z.correct++; else if (M.lives !== null) z.lives--;
+  render();
+}
+function next() {
+  const z = S.quiz;
+  if (z.i === z.qs.length - 1 || (!z.right && z.lives === 0)) return finish();
+  z.i++; z.input = z.qs[z.i].s || ''; z.gaveUp = false; z.answered = false; z.chosen = -1; z.right = false; z.timedOut = false; z.hintUsed = false; z.gone = [];
+  render(); window.scrollTo(0, 0);
+  startTimer();
+}
+function finish() {
+  const z = S.quiz, M = MODES[z.mode], total = z.qs.length;
+  const st = Math.min(3, Math.max(0, z.correct - 1));
+  const xp = z.correct * 10 * M.mult + (z.correct === total ? 20 * M.mult : 0);
+  const before = 1 + Math.floor(P.xp / LV);
+  const key = z.topic + ':' + z.mode;
+  if (st > (P.best[key] || 0)) P.best[key] = st;
+  P.xp += xp; save();
+  const after = 1 + Math.floor(P.xp / LV);
+  S.result = { topic: z.topic, mode: z.mode, correct: z.correct, total, stars: st, xp, out: z.lives === 0 && z.correct < total, levelUp: after > before ? after : 0 };
+  go('result');
+}
+
+const A = {
+  topic(d) { S.topic = +d.i; go('topic'); },
+  mode(d) { S.mode = d.m; P.mode = d.m; save(); render(); },
+  home() { S.resetArm = false; go('home'); },
+  start() { startQuiz(); },
+  quit() { go('topic'); },
+  pick(d) { answer(+d.i); },
+  hint() {
+    const z = S.quiz; if (!z || z.answered || z.hintUsed) return;
+    const wrong = z.qs[z.i].opts.map((o, i) => o.ok ? -1 : i).filter(i => i >= 0);
+    z.gone = shuffle(wrong).slice(0, 2); z.hintUsed = true; render();
+  },
+  next() { next(); },
+  check() {
+    const z = S.quiz, el = document.getElementById('code'), msg = document.getElementById('cmsg');
+    if (!z || z.answered || !el) return;
+    const v = el.value, q = z.qs[z.i];
+    z.input = v;
+    if (!v.trim() || v.trim() === (q.s || '').trim()) { msg.textContent = 'Write your code in the box first.'; return; }
+    const problem = balanceProblem(v);
+    if (problem) { msg.textContent = problem; return; }
+    const n = norm(v);
+    answerCode(q.re.every(r => r.test(n)), false);
+  },
+  giveup() {
+    const z = S.quiz, el = document.getElementById('code');
+    if (!z || z.answered) return;
+    if (el) z.input = el.value;
+    answerCode(false, true);
+  },
+  again() { S.topic = S.result.topic; S.mode = S.result.mode; startQuiz(); },
+  nexttopic() { S.topic = Math.min(S.result.topic + 1, TOPICS.length - 1); go('topic'); },
+  reset() {
+    if (!S.resetArm) { S.resetArm = true; render(); return; }
+    P = { xp: 0, best: {}, mode: 'easy' }; save(); S.mode = 'easy'; S.resetArm = false; render();
+  }
+};
+app.addEventListener('click', e => {
+  const b = e.target.closest('[data-a]');
+  if (!b || b.disabled) return;
+  const f = A[b.dataset.a];
+  if (f) f(b.dataset);
+});
+app.addEventListener('keydown', e => {
+  if (e.key === 'Tab' && e.target && e.target.id === 'code') {
+    e.preventDefault();
+    const el = e.target, a = el.selectionStart;
+    el.value = el.value.slice(0, a) + '    ' + el.value.slice(el.selectionEnd);
+    el.selectionStart = el.selectionEnd = a + 4;
+  }
+});
+render();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+}
+</script>
+
+</body>
+</html>
