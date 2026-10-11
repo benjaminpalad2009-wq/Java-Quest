@@ -1,30 +1,89 @@
+<div align="center">
+
+<img src="icons/icon-192.png" width="96" height="96" alt="Java Quest icon">
+
 # Java Quest
 
-Learn Java with short lessons and a quiz game. Easy, Medium and Hard are multiple choice. Extreme makes you type the code yourself.
+**Learn Java by playing. Short lessons, then a quiz that fights back.**
 
-It is a plain web app: no build step, no server, no accounts. Your progress is saved on your device.
+![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web-2B55E6)
+![Works offline](https://img.shields.io/badge/works-offline-0B7F72)
+![No accounts](https://img.shields.io/badge/accounts-none-A65D00)
+![Dependencies](https://img.shields.io/badge/dependencies-0-C2275A)
 
-## What is in this folder
+[Install](#install) · [Features](#features) · [Deploy your own](#deploy-your-own) · [Customize](#customize)
 
-| File | What it does |
+</div>
+
+---
+
+## Features
+
+- **7 lessons** that start from zero: variables, operators, decisions, loops, methods, arrays, and classes.
+- **112 challenges**: 84 multiple choice questions and 28 coding challenges where you type the Java yourself.
+- **4 difficulty modes**, from forgiving to brutal.
+- **Progress that sticks**: stars per lesson and mode, XP, and levels, saved on your device.
+- **Made for phones**: one question per screen, big tap targets, light and dark themes.
+- **Works offline** after the first visit.
+- **Private**: no accounts, no tracking, nothing leaves your device.
+
+### Difficulty modes
+
+| Mode | How it plays | Lives | XP per correct answer |
+| --- | --- | --- | --- |
+| **Easy** | Multiple choice. A hint removes two wrong answers. | Unlimited | 10 |
+| **Medium** | Multiple choice. No hints. | 3 hearts | 20 |
+| **Hard** | Multiple choice with a 20 second timer. | 2 hearts | 30 |
+| **Extreme** | Write the code yourself. No options to pick from. | 3 hearts | 40 |
+
+Every lesson has 4 questions per mode. Stars: 4 correct earns 3 stars, 3 correct earns 2, and 2 correct earns 1. A perfect run adds a bonus. You level up every 150 XP.
+
+### Lessons
+
+| # | Lesson | You will learn |
+| --- | --- | --- |
+| 1 | Variables & Types | `int`, `double`, `boolean`, `char`, `String`, `final` |
+| 2 | Operators & Math | arithmetic, `%`, comparisons, `&&` `\|\|` `!`, `++` |
+| 3 | Decisions | `if` / `else`, ternary, `switch` |
+| 4 | Loops | `for`, `while`, `do-while`, `break`, `continue` |
+| 5 | Methods | parameters, `return`, `void`, overloading, recursion |
+| 6 | Arrays & ArrayList | indexes, `length`, `add`, `get`, for-each |
+| 7 | Classes & Objects | constructors, `private`, `this`, `extends`, `static` |
+
+### How Extreme mode checks your code
+
+The app does not run your Java. It reads what you typed and checks it against the pattern each challenge expects. Spacing, line breaks and comments do not matter. Spelling, semicolons, brackets and the names the task gives you do. Mismatched brackets and unclosed quotes get a message and cost nothing. After you answer, you see your code next to one example solution.
+
+---
+
+## Install
+
+| Where | How |
 | --- | --- |
-| `index.html` | The whole app: lessons, questions, game logic, styles |
-| `manifest.webmanifest` | Lets phones install it like an app (name, colors, icons) |
-| `sw.js` | Lets it work offline after the first visit |
-| `icons/` | App icons |
-| `.nojekyll` | Tells GitHub Pages to serve the files as they are |
-| `.github/workflows/build-apk.yml` | Builds an Android APK on GitHub and posts it as a download |
+| **Android app** | Download `java-quest.apk` from the [latest release](../../releases/latest), open it, and allow installs from unknown sources. |
+| **iPhone** | Open the web link in Safari, tap **Share**, then **Add to Home Screen**. |
+| **Android browser** | Open the web link in Chrome, tap the menu, then **Install app**. |
+| **Any computer** | Open the web link in a browser. |
 
-## 1. Put it on GitHub
+The web link is `https://YOUR-USERNAME.github.io/java-quest/` once you [deploy your own](#deploy-your-own).
 
-No Git needed:
+---
 
-1. Sign in at github.com and tap **New repository**. Name it `java-quest`, keep it **Public**, and create it.
+## Deploy your own
+
+You need a free GitHub account. No Git knowledge needed.
+
+### 1. Create the repository
+
+<details>
+<summary>Step by step</summary>
+
+1. Sign in at github.com, tap **New repository**, name it `java-quest`, keep it **Public**, and create it.
 2. Tap **uploading an existing file** (or **Add file > Upload files**).
-3. Unzip this folder first. Drag in everything, including the `icons` folder and the hidden `.nojekyll` file. If your file picker hides dotfiles, skip `.nojekyll`; the app still works.
+3. Unzip the download. Open the unzipped folder and upload what is inside it, including the `icons` folder. The files must sit at the top level of the repo, not inside another folder.
 4. Tap **Commit changes**.
 
-With Git:
+With Git instead:
 
 ```bash
 cd java-quest
@@ -36,56 +95,83 @@ git remote add origin https://github.com/YOUR-USERNAME/java-quest.git
 git push -u origin main
 ```
 
-## 2. Turn on GitHub Pages (gives you a real link)
+</details>
+
+### 2. Turn on the web version
+
+<details>
+<summary>Step by step</summary>
 
 1. In the repo, open **Settings > Pages**.
-2. Under **Build and deployment**, set **Source** to **Deploy from a branch**.
+2. Set **Source** to **Deploy from a branch**.
 3. Pick branch **main** and folder **/ (root)**, then **Save**.
-4. Wait a minute. Your app is live at `https://YOUR-USERNAME.github.io/java-quest/`.
+4. After a minute the app is live at `https://YOUR-USERNAME.github.io/java-quest/`.
 
-## 3. Install it on your phone
+</details>
 
-Open the link above on your phone, then:
+### 3. Build the Android app
 
-- **iPhone (Safari):** Share button > **Add to Home Screen**.
-- **Android (Chrome):** menu (three dots) > **Install app** or **Add to Home screen**.
+<details>
+<summary>Step by step</summary>
 
-It opens full screen with its own icon. After the first visit it also works without internet. The fonts download on first load; offline you will see a similar built-in font.
+The workflow in `.github/workflows/build-apk.yml` builds an Android app with [Capacitor](https://capacitorjs.com) and publishes it as a release. It runs every time you push to `main`.
 
-## 4. Get a real Android app (APK)
+If the `.github` folder did not upload (hidden folders are often skipped), add it by hand:
 
-The file `.github/workflows/build-apk.yml` makes GitHub build an Android app for you, using [Capacitor](https://capacitorjs.com). It runs by itself every time you push to `main`.
-
-If the `.github` folder did not upload (hidden folders often get skipped), add it by hand:
-
-1. In your repo, tap **Add file > Create new file**.
+1. Tap **Add file > Create new file**.
 2. In the name box, type `.github/workflows/build-apk.yml`. Typing the slashes creates the folders.
-3. Paste in the contents of `build-apk.yml` from this zip and commit.
+3. Paste in the contents of `build-apk.yml` from the download and commit.
 
 Then:
 
-1. Open the **Actions** tab, pick **Build Java Quest APK**, and tap **Run workflow** (skip this if the push already started a run).
-2. Wait about 5 to 10 minutes for the green check.
-3. Open the repo home page and tap **Releases** in the right column (or the **Code** tab on mobile). Download `java-quest.apk` from the newest release.
-4. Open the file on your Android phone and allow **install from unknown sources** when asked.
+1. Open the **Actions** tab, pick **Build Java Quest APK**, and tap **Run workflow** (skip this if a run already started).
+2. Wait 5 to 10 minutes for the green check.
+3. Open **Releases** on the repo home page and download `java-quest.apk` from the newest release.
 
-Good to know:
+</details>
 
-- **iPhone:** APK files only install on Android. On iPhone use the home-screen install in step 3. A real iOS app needs a Mac with Xcode and an Apple Developer account ($99 a year).
-- **Play Store:** this builds a debug APK for installing on your own devices. Publishing to Google Play needs a signed release build and a one-time $25 developer fee.
-- **If the release step fails with a permissions error:** open **Settings > Actions > General > Workflow permissions** and choose **Read and write permissions**.
-- **If the build fails on the icon step:** that step is optional and will not stop the build. You will just get the default Android icon.
-- **Updates:** each run publishes a new release with a higher number. Install the newest APK over the old one.
+### Troubleshooting
 
-## Changing things
+| Problem | Fix |
+| --- | --- |
+| Release step fails with a permissions error | **Settings > Actions > General > Workflow permissions**, then choose **Read and write permissions**. |
+| App shows the default Android icon | The optional icon step failed. The app still works. |
+| Phone keeps showing an old version | Raise the cache number in `sw.js` (see [Customize](#customize)). |
+| APK will not install on iPhone | APKs are Android only. Use **Add to Home Screen** on iPhone. |
 
-- **Add or edit questions and lessons:** open `index.html` and search for `/*DATA*/`. Everything between `/*DATA*/` and `/*END DATA*/` is the content. Multiple choice questions list the correct answer first; the app shuffles the choices.
-- **Extreme challenges:** the `EXTREME` list in the same block. Each challenge has a prompt, optional starter code, an example solution and a list of patterns the typed code must match.
-- **Colors:** the variables at the top of the `<style>` block.
-- **After any change:** open `sw.js` and change `java-quest-v1` to `java-quest-v2` (then v3, and so on). That makes phones fetch the new version instead of the cached one.
+---
 
-To test on your computer, run `python3 -m http.server` in this folder and open `http://localhost:8000`.
+## Customize
 
-## Reset progress
+| What | Where |
+| --- | --- |
+| Lessons and questions | In `index.html`, between `/*DATA*/` and `/*END DATA*/`. For multiple choice, the first option is the correct one. The app shuffles them. |
+| Coding challenges | The `EXTREME` list in the same block. Each has a prompt, optional starter code, an example solution, and the patterns the answer must match. |
+| Colors and fonts | The variables at the top of the `<style>` block. |
+| App name and colors on the phone | `manifest.webmanifest` |
+| Icons | `icons/` (the Android build uses `icon-maskable-512.png`) |
 
-On the home screen, tap **Reset progress** at the bottom, then tap it again to confirm.
+After changing `index.html`, open `sw.js` and raise `java-quest-v1` to `java-quest-v2` (then v3, and so on). That makes phones fetch the new version instead of the saved one.
+
+To test on your computer, run `python3 -m http.server` in the project folder and open `http://localhost:8000`.
+
+To start over inside the app, tap **Reset progress** at the bottom of the home screen, then tap it again to confirm.
+
+---
+
+## Project layout
+
+```
+java-quest/
+├── index.html               the whole app: content, game logic, styles
+├── manifest.webmanifest     install details for phones
+├── sw.js                    offline support
+├── icons/                   app icons
+├── .nojekyll                serves the files as they are on GitHub Pages
+└── .github/workflows/
+    └── build-apk.yml        builds the Android app
+```
+
+## Built with
+
+Plain HTML, CSS and JavaScript. No framework, no build step, no dependencies. Fonts come from Google Fonts. Progress is stored in the browser's `localStorage`. The Android app wraps the same files with Capacitor.
