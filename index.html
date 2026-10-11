@@ -164,6 +164,40 @@ pre.code code { background: none; padding: 0; font: inherit; border-radius: 0; }
 .cmsg { min-height: 1.5em; color: var(--bad); font-size: 14px; font-weight: 600; }
 .crow { display: grid; gap: 10px; }
 
+/* splash: a deliberate single look, navy in both themes */
+#splash { position: fixed; inset: 0; z-index: 100; background: #121A3B; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; transition: opacity .45s; animation: spAuto .01s 3.4s forwards; }
+#splash.out { opacity: 0; pointer-events: none; }
+.sp-mark { display: flex; align-items: center; font: 700 clamp(64px, 22vw, 96px)/1 "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; }
+.sp-b { color: #8AA4FF; animation: spB .7s cubic-bezier(.2,.8,.2,1) both; }
+.sp-b.l { --x: 24px; } .sp-b.r { --x: -24px; }
+.sp-j { color: #FFFFFF; animation: spJ .6s .25s cubic-bezier(.2,.8,.2,1) both; }
+.sp-star { animation: spStar .5s .7s cubic-bezier(.3,1.6,.5,1) both; }
+.sp-name { font: 800 clamp(28px, 8vw, 36px)/1 var(--f-display); letter-spacing: -0.02em; animation: spUp .5s .8s both; }
+.sp-tag { color: #9BA6CE; font-size: 15px; animation: spUp .5s .95s both; }
+.sp-load { width: 120px; height: 4px; border-radius: 99px; background: #252F5C; overflow: hidden; margin-top: 18px; animation: spUp .3s 1s both; }
+.sp-load i { display: block; height: 100%; width: 100%; background: #FFC53D; transform-origin: left; animation: spLoad .7s 1s cubic-bezier(.4,0,.2,1) both; }
+@keyframes spB { from { opacity: 0; transform: translateX(var(--x)); } to { opacity: 1; transform: none; } }
+@keyframes spJ { from { opacity: 0; transform: translateY(12px) scale(.9); } to { opacity: 1; transform: none; } }
+@keyframes spStar { from { opacity: 0; transform: scale(.2) rotate(-40deg); } to { opacity: 1; transform: none; } }
+@keyframes spUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes spLoad { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes spAuto { to { visibility: hidden; opacity: 0; pointer-events: none; } }
+@media (prefers-reduced-motion: reduce) { #splash *, #splash .sp-star { animation: none !important; } }
+
+/* welcome tour */
+.dots { display: flex; gap: 8px; align-items: center; }
+.dots i { width: 8px; height: 8px; border-radius: 99px; background: var(--line); }
+.dots i.on { width: 26px; background: var(--accent); }
+.lead { font-size: 17px; max-width: 60ch; }
+.modes { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.modes li { display: grid; gap: 2px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.modes b { font: 700 17px var(--f-display); }
+.modes .m-easy b { color: var(--easy); } .modes .m-medium b { color: var(--med); } .modes .m-hard b { color: var(--hard); } .modes .m-extreme b { color: var(--xtr); }
+.modes span { color: var(--muted); font-size: 14px; }
+.field { width: 100%; min-height: 52px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); padding: 0 14px; font: 600 18px var(--f-body); }
+.field:focus-visible { border-color: var(--accent); outline: none; }
+.field-note { color: var(--muted); font-size: 14px; }
+
 /* result */
 .res { display: grid; gap: 18px; justify-items: center; text-align: center; padding-top: 12px; }
 .res .stars { gap: 6px; }
@@ -179,6 +213,13 @@ pre.code code { background: none; padding: 0; font: inherit; border-radius: 0; }
 </head>
 <body>
 <div id="app"></div>
+<div id="splash" aria-hidden="true">
+  <div class="sp-mark"><span class="sp-b l">{</span><span class="sp-j">J</span><span class="sp-b r">}</span></div>
+  <svg class="sp-star" width="30" height="30" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.5 6 20.9l1.3-6.7-5-4.7 6.8-.8z" fill="#FFC53D"/></svg>
+  <div class="sp-name">Java Quest</div>
+  <div class="sp-tag">Learn it. Prove it.</div>
+  <div class="sp-load"><i></i></div>
+</div>
 
 <script>
 /*DATA*/
@@ -459,15 +500,15 @@ const HEART = 'M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 4.8 6.2 4.8c2.1 0 3.5 1.1 4.3 
 
 const app = document.getElementById('app');
 let P = load();
-let S = { screen: 'home', topic: 0, mode: MODES[P.mode] ? P.mode : 'easy', quiz: null, result: null, resetArm: false };
+let S = { screen: P.seen ? 'home' : 'welcome', wstep: 0, wname: P.name || '', topic: 0, mode: MODES[P.mode] ? P.mode : 'easy', quiz: null, result: null, resetArm: false };
 let timerId = null;
 
 function load() {
   try {
     const r = JSON.parse(localStorage.getItem('javaquest') || 'null');
-    if (r && typeof r === 'object') return { xp: +r.xp || 0, best: r.best && typeof r.best === 'object' ? r.best : {}, mode: r.mode || 'easy' };
+    if (r && typeof r === 'object') return { xp: +r.xp || 0, best: r.best && typeof r.best === 'object' ? r.best : {}, mode: r.mode || 'easy', name: typeof r.name === 'string' ? r.name.slice(0, 20) : '', seen: !!r.seen };
   } catch (e) {}
-  return { xp: 0, best: {}, mode: 'easy' };
+  return { xp: 0, best: {}, mode: 'easy', name: '', seen: false };
 }
 function save() { try { localStorage.setItem('javaquest', JSON.stringify(P)); } catch (e) {} }
 
@@ -508,13 +549,33 @@ function modeSwitch() {
 function home() {
   const lvl = 1 + Math.floor(P.xp / LV), into = P.xp % LV;
   return '<main class="wrap">' +
-    '<header class="top"><div><h1 class="brand">Java Quest</h1><p class="sub">Learn a lesson, then prove it.</p></div>' +
+    '<header class="top"><div><h1 class="brand">Java Quest</h1><p class="sub">' + (P.name ? 'Welcome back, ' + esc(P.name) + '.' : 'Learn a lesson, then prove it.') + '</p></div>' +
     '<div class="lvl"><span><b>Level ' + lvl + '</b><b>' + P.xp + ' XP</b></span><div class="bar"><i style="width:' + (into / LV * 100) + '%"></i></div></div></header>' +
     modeSwitch() + '<p class="modeNote">' + MODES[S.mode].blurb + '</p>' +
     '<ol class="topics">' + TOPICS.map((t, i) =>
       '<li><button class="card" data-a="topic" data-i="' + i + '"><span class="num">' + (i + 1) + '</span><span class="ct"><b>' + esc(t.title) + '</b><small>' + esc(t.blurb) + '</small><span class="rows">' +
       ORDER.map(m => '<span class="mini m-' + m + '">' + MODES[m].label + stars(best(i, m), 13) + '</span>').join('') + '</span></span></button></li>').join('') + '</ol>' +
-    '<div class="foot"><button class="link" data-a="reset">' + (S.resetArm ? 'Tap again to erase all progress' : 'Reset progress') + '</button></div></main>';
+    '<div class="foot"><button class="link" data-a="tour">Welcome tour</button><button class="link" data-a="reset">' + (S.resetArm ? 'Tap again to erase all progress' : 'Reset progress') + '</button></div></main>';
+}
+
+const WEL = { easy: 'Hints on. Nothing to lose.', medium: 'Three hearts, no hints.', hard: 'Two hearts and a 20 second timer.', extreme: 'No choices. You type the code.' };
+function welcomeScreen() {
+  const w = S.wstep;
+  const pages = [
+    { k: 'Welcome', t: 'Learn Java in small bites', p: 'Seven short lessons take you from your first variable to your first class. Each one ends with a quiz, so you know it stuck.',
+      v: '<pre class="code"><code>' + hl('int level = 1;\nSystem.out.println("Hello, Java!");') + '</code></pre>' },
+    { k: 'Four ways to play', t: 'Pick how hard you want it', p: 'Every lesson can be played at any difficulty. Switch whenever you like.',
+      v: '<ul class="modes">' + ORDER.map(m => '<li class="m-' + m + '"><b>' + MODES[m].label + '</b><span>' + WEL[m] + '</span></li>').join('') + '</ul>' },
+    { k: 'Last step', t: 'What should we call you?', p: 'This is optional. Your name stays on this device.',
+      v: '<div><label class="lbl" for="name">Your name</label><input id="name" class="field" type="text" maxlength="20" autocomplete="given-name" placeholder="Maria" value="' + esc(S.wname).replace(/"/g, '&quot;') + '"></div>' }
+  ];
+  const pg = pages[w];
+  let h = '<main class="wrap"><div class="dots" role="img" aria-label="Step ' + (w + 1) + ' of 3">' + pages.map((_, i) => '<i class="' + (i === w ? 'on' : '') + '"></i>').join('') + '</div>' +
+    '<div><p class="kicker">' + pg.k + '</p><h1 class="title">' + pg.t + '</h1></div><p class="lead">' + pg.p + '</p>' + pg.v + '</main>' +
+    '<div class="dock"><div class="dock-in">';
+  h += w < 2 ? '<button class="primary" data-a="wnext">Next</button>' : '<button class="primary" data-a="wdone">Start learning</button>';
+  h += w === 0 ? '<button class="ghost" data-a="wskip">Skip intro</button>' : '<button class="ghost" data-a="wback">Back</button>';
+  return h + '</div></div>';
 }
 
 function topicScreen() {
@@ -603,7 +664,7 @@ function resultScreen() {
 }
 
 function render() {
-  app.innerHTML = S.screen === 'home' ? home() : S.screen === 'topic' ? topicScreen() : S.screen === 'quiz' ? quizScreen() : resultScreen();
+  app.innerHTML = S.screen === 'welcome' ? welcomeScreen() : S.screen === 'home' ? home() : S.screen === 'topic' ? topicScreen() : S.screen === 'quiz' ? quizScreen() : resultScreen();
 }
 function go(screen) { stopTimer(); S.screen = screen; render(); window.scrollTo(0, 0); }
 
@@ -664,6 +725,11 @@ const A = {
   topic(d) { S.topic = +d.i; go('topic'); },
   mode(d) { S.mode = d.m; P.mode = d.m; save(); render(); },
   home() { S.resetArm = false; go('home'); },
+  tour() { S.wstep = 0; S.wname = P.name || ''; go('welcome'); },
+  wnext() { S.wstep = Math.min(2, S.wstep + 1); render(); window.scrollTo(0, 0); },
+  wback() { S.wstep = Math.max(0, S.wstep - 1); render(); window.scrollTo(0, 0); },
+  wskip() { finishWelcome(false); },
+  wdone() { finishWelcome(true); },
   start() { startQuiz(); },
   quit() { go('topic'); },
   pick(d) { answer(+d.i); },
@@ -694,7 +760,7 @@ const A = {
   nexttopic() { S.topic = Math.min(S.result.topic + 1, TOPICS.length - 1); go('topic'); },
   reset() {
     if (!S.resetArm) { S.resetArm = true; render(); return; }
-    P = { xp: 0, best: {}, mode: 'easy' }; save(); S.mode = 'easy'; S.resetArm = false; render();
+    P = { xp: 0, best: {}, mode: 'easy', name: P.name, seen: true }; save(); S.mode = 'easy'; S.resetArm = false; render();
   }
 };
 app.addEventListener('click', e => {
@@ -711,6 +777,32 @@ app.addEventListener('keydown', e => {
     el.selectionStart = el.selectionEnd = a + 4;
   }
 });
+function finishWelcome(useName) {
+  P.seen = true;
+  if (useName) P.name = (S.wname || '').trim().slice(0, 20);
+  save();
+  S.resetArm = false;
+  go('home');
+}
+app.addEventListener('input', e => {
+  if (e.target && e.target.id === 'name') S.wname = e.target.value;
+});
+app.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target && e.target.id === 'name') { e.preventDefault(); S.wname = e.target.value; finishWelcome(true); }
+});
+
+const splash = document.getElementById('splash');
+function hideSplash() {
+  if (!splash || splash.dataset.done) return;
+  splash.dataset.done = '1';
+  splash.classList.add('out');
+  setTimeout(function () { splash.remove(); }, 500);
+}
+if (splash) {
+  const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setTimeout(hideSplash, calm ? 700 : 1900);
+  splash.addEventListener('click', hideSplash);
+}
 render();
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {

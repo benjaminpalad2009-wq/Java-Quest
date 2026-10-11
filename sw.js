@@ -1,5 +1,5 @@
 // Offline support. Bump CACHE_VERSION whenever you change index.html so phones pick up the new version.
-const CACHE_VERSION = 'java-quest-v1';
+const CACHE_VERSION = 'java-quest-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {

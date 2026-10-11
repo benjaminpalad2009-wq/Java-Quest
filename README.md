@@ -24,6 +24,7 @@
 - **4 difficulty modes**, from forgiving to brutal.
 - **Progress that sticks**: stars per lesson and mode, XP, and levels, saved on your device.
 - **Made for phones**: one question per screen, big tap targets, light and dark themes.
+- **A proper first launch**: an animated splash screen, then a short welcome tour for new players.
 - **Works offline** after the first visit.
 - **Private**: no accounts, no tracking, nothing leaves your device.
 
@@ -151,7 +152,7 @@ Then:
 | App name and colors on the phone | `manifest.webmanifest` |
 | Icons | `icons/` (the Android build uses `icon-maskable-512.png`) |
 
-After changing `index.html`, open `sw.js` and raise `java-quest-v1` to `java-quest-v2` (then v3, and so on). That makes phones fetch the new version instead of the saved one.
+After changing `index.html`, open `sw.js` and raise `java-quest-v2` to `java-quest-v3` (then v4, and so on). That makes phones fetch the new version instead of the saved one.
 
 To test on your computer, run `python3 -m http.server` in the project folder and open `http://localhost:8000`.
 
